@@ -49,21 +49,46 @@ def add_legend(markerLabel, option, rgba, markerSize, fontSize, hp = []):
     '''
 
     if type(markerLabel) is list:
-        
+        print('is list')
         # Check for empty list of plot handles
+
+        # changed by CH on 2020-05-27
         if len(hp) == 0:
-            raise ValueError('Empty list of plot handles')
+            # raise ValueError('Empty list of plot handles')
+            if len(markerLabel) <= 8:  # caroline changed limit value from 6 to 8
+                # Put legend in a default location
+                markerlabel = tuple(markerLabel)
+                plt.legend(hp, markerlabel, marker=mar, loc='lower left', markerfacecolor='k',
+                           fontsize=fontSize, numpoints=1,
+                           bbox_to_anchor=(0.2, -0.3))
+
+            else:
+                # Put legend to right of the plot in multiple columns as needed
+
+                nmarkers = len(markerLabel)
+                ncol = int(math.ceil(nmarkers / 15.0))
+                markerlabel = tuple(markerLabel)
+
+                # Shift figure to include legend
+                plt.gcf().subplots_adjust(right=0.6)
+
+                # Plot legend of multi-column markers
+                # Note: do not use bbox_to_anchor as this cuts off the legend
+                plt.legend(hp, markerlabel, marker=mar, loc=(0, -0.2), markerfacecolor='k',
+                           fontsize=fontSize, numpoints=1, ncol=ncol)
+        """
         elif len(hp) != len(markerLabel):
             raise ValueError('Number of labels and plot handle do not match: ' +
                              str(len(markerLabel)) + ' != ' + str(len(hp)))
-        
+        """
         # Add legend using labels provided as list
-        if len(markerLabel) <= 6:
+        if len(markerLabel) <= 8:  # caroline changed limit value from 6 to 8
             # Put legend in a default location
             markerlabel = tuple(markerLabel)
-            plt.legend(hp, markerlabel, loc = 'upper right',
-                                 fontsize = fontSize, numpoints=1,
-                                 bbox_to_anchor=(1.2,1.0))
+            plt.legend(hp, markerlabel, loc='upper left',
+                       fontsize=fontSize, numpoints=1,
+                       bbox_to_anchor=(-0.1, -0.3))  # (1.2,1.0)
+            print('yes, this is here')
         else:
             # Put legend to right of the plot in multiple columns as needed
 
@@ -85,9 +110,14 @@ def add_legend(markerLabel, option, rgba, markerSize, fontSize, hp = []):
             
         # Define legend elements
         legend_elements = []
-        for key, value in markerLabel.items():
-            legend_object = Line2D([0], [0], marker='.', markersize = markerSize,
-                 markerfacecolor = rgba, markeredgecolor = value, label=key, linestyle='')
+ #       for key, value in markerLabel.items():
+ #           legend_object = Line2D([0], [0], marker='.', markersize=markerSize,
+ #                                  markerfacecolor=rgba, markeredgecolor=value, label=key, linestyle='')
+ #           legend_elements.append(legend_object)
+        for leg_str, leg_list in markerLabel.items():
+            print(leg_list)
+            legend_object = Line2D([0], [0], marker=leg_list[0], markersize=markerSize,
+                                   markerfacecolor=leg_list[2], markeredgecolor=leg_list[1], label=leg_str, linestyle='')
             legend_elements.append(legend_object)
 
         # Put legend in a default location

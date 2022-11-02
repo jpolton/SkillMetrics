@@ -2,6 +2,8 @@ from skill_metrics.get_from_dict_or_default import get_from_dict_or_default
 from skill_metrics import add_legend
 import matplotlib.colors as clr
 import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
 import warnings
 
 def plot_pattern_diagram_markers(ax: matplotlib.axes.Axes, X, Y, option: dict):
@@ -51,6 +53,7 @@ def plot_pattern_diagram_markers(ax: matplotlib.axes.Axes, X, Y, option: dict):
     fontSize = matplotlib.rcParams.get('font.size') - 2
     markerSize = option['markersize']
     
+    """
     # Check enough labels provided if markerlabel provided
     numberLabel = len(option['markerlabel'])
     if numberLabel > 0:
@@ -63,7 +66,7 @@ def plot_pattern_diagram_markers(ax: matplotlib.axes.Axes, X, Y, option: dict):
         elif isinstance(option['markerlabel'], dict) and numberLabel > 70:
             raise ValueError('Insufficient number of marker labels provided.\n' +
                              'target: No. labels=' + str(numberLabel) + ' > No. markers= 70')
-    
+    """
     if option['markerlegend'] == 'on':
         # Check that marker labels have been provided
         if option['markerlabel'] == '':
@@ -120,6 +123,7 @@ def plot_pattern_diagram_markers(ax: matplotlib.axes.Axes, X, Y, option: dict):
             warnings.warn('No markers within axis limit ranges.')
         else:
             add_legend(markerlabel, option, rgba, markerSize, fontSize, hp)
+    """
     else:
         # Plot markers as dots of a single color with accompanying labels
         # and no legend
@@ -158,7 +162,123 @@ def plot_pattern_diagram_markers(ax: matplotlib.axes.Axes, X, Y, option: dict):
         marker_label_color = clr.to_rgb(edge_color) + (alpha,)
         if type(markerlabel) is dict:
             add_legend(markerlabel, option, marker_label_color, markerSize, fontSize)
+    """
 
+    if option['markerdictch'] != None:
+    # markerlabels for legend. plot markers
+
+        markerlabel = []
+
+        # create list from dict
+        colmar = []  # colmar for color (belonging to a marker)
+        markcol = []  # markcol for marker (belonging to a climate model)
+        edgecol = []  # edgecolors for forcings
+        hp = ()  # for handles
+
+        for idx1, mar in enumerate(option['markerdictch'].keys()):
+
+            for forcing in option['markerdictch'][mar].keys():
+                for idx2, col in enumerate(option['markerdictch'][mar][forcing]):
+                    # print(col)
+                    colmar.append(col)
+                    markcol.append(mar)
+                    if forcing == 'w':
+                        edgecol.append(col)  # do not use white edgecolor. Just use same color as markercolor
+                    else:
+                        edgecol.append(forcing)
+
+                    # this is for legend
+                    # idx2 == 0 is there so that we take only one color
+
+                    # case where we have only model data, no ERA5 data (ERA5 is reference)
+                    if idx1 == 0 and idx2 == 0 and mar != '*':
+                        if forcing == 'w':  # do not use white edgecolor
+                            my_edge_col = col
+                        else:
+                            my_edge_col = forcing
+                        mark = mlines.Line2D([], [], color=col, marker=mar, markeredgecolor=my_edge_col,
+                                             markersize=markerSize)
+                        hp += tuple([mark])
+                        rgba = clr.to_rgb('k') + (alpha,)  # not really needed, but otherwise rgba is not defined for add_legend
+
+                    # case where we have ERA5 data
+                    # make sure that we only run this code if ERA5 is NOT the reference, so if the marker of ERA5 ('*') is in the markerdict
+                    if '*' in option['markerdictch'].keys():
+                        if idx1 == 1 and idx2 == 0:  # take second entry for displaying forcing, since ERA5 is reanalysis and has no different forcings
+                            # markerlabel.append(option['markerlabel'][i]) # only plot legend of markers, which indicate climate model
+                            if forcing == 'w':  # do not use white edgecolor
+                                my_edge_col = col
+                            else:
+                                my_edge_col = forcing
+                            mark = mlines.Line2D([], [], color=col, marker=mar, markeredgecolor=my_edge_col,
+                                                 markersize=markerSize)
+                            hp += tuple([mark])
+                            rgba = clr.to_rgb('k') + (
+                            alpha,)  # not really needed, but otherwise rgba is not defined for add_legend
+
+        # # markerlabels for legend. plot markers
+        # markerlabel = []
+
+        # # create list from dict
+        # colmar = [] # colmar for color (belonging to a marker)
+        # markcol = [] # markcol for marker (belonging to a climate model)
+        # hp = () # for handles
+        # for mar in option['markerdictch'].keys():
+        #     # markerlabel.append(option['markerlabel'][i]) # only plot legend of markers, which indicate climate model
+        #     mark = mlines.Line2D([], [], color='k', marker=mar, # edgecolor
+        #                   markersize=markerSize)
+        #     hp += tuple([mark])
+        #     rgba = clr.to_rgb('k') + (alpha,) # not really needed, but otherwise rgba is not defined for add_legend
+
+        #     for col in option['markerdictch'][mar]:
+        #         colmar.append(col)
+        #         markcol.append(mar)
+
+
+        # print(f'len of X: {len(X)}, len of Y: {len(Y)}, len of colmar: {len(colmar)}, len of markcol: {len(markcol)}, len of edgecol: {len(edgecol)}')
+
+        # Add legend for forcings
+        # only useful if not only ERA5 data is in it
+        if len(hp) != 0:
+            if len(option['markerlabel']) == 0:
+                warnings.warn('No markers within axis limit ranges.')
+            else:
+
+                for h in hp: h.set_linestyle("")  # Caroline: do not display lines
+                add_legend(option['markerlabel'], option, rgba, markerSize, fontSize, hp)
+
+        # Plot markers at data points
+
+        limit = option['axismax']
+        # hp = ()
+
+        # CH made some changes below
+        print(X)
+        for i, xval in enumerate(X):
+            if abs(X[i]) <= limit and abs(Y[i]) <= limit:
+                # print(i)
+                # print(X[i])
+                # print(Y[i])
+                # print(colmar[i])
+                # print(markcol[i])
+                # print(edgecol[i])
+                h = plt.plot(X[i], Y[i], color=colmar[i], marker=markcol[i], markersize=markerSize,
+                             # markerfacecolor = markercolor[i],
+                             markeredgecolor=edgecol[i],
+                             markeredgewidth=1.2, alpha=0.7)
+                # hp += tuple(h)
+
+
+        # Add legend
+        # if len(option['markerlabel']) == 0:
+        #     warnings.warn('No markers within axis limit ranges.')
+        # else:
+
+        #     for h in hp: h.set_linestyle("") # Caroline: do not display lines
+        #     add_legend(option['markerlabel'], option, rgba, markerSize, fontSize, hp)
+
+        # add title (doesn't work properly)
+        # plt.title('Taylor diagram (Frequency = Monthly)')
 
 def _disp(text):
     print(text)

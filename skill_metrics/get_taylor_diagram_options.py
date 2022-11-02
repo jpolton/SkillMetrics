@@ -75,6 +75,7 @@ def get_taylor_diagram_options(*args,**kwargs):
                                 value of 'colstd' (Default: None)
     option['labelrms']        : RMS axis label (Default: 'RMSD')
     option['labelweight']     : weight of the x/y/angular axis labels
+    option['legendch']        : (CH, 2020-08-11), choose if legend is plotted
     option['locationcolorbar']: location for the colorbar, 'NorthOutside' or
                                  'EastOutside'
 
@@ -82,6 +83,10 @@ def get_taylor_diagram_options(*args,**kwargs):
     option['markercolors']    : dictionary with two colors as keys ('face', 'edge')
                                 or None. If None or 'markerlegend' == 'on' then
                                 considers only the value of 'markercolor'. (Default: None)
+    option['markerdictch']    : (CH, 2020-05-27), define dictionary for marker and color
+                                (e.g. {'marker1': ['color1', 'color2',..], 'marker2': ['color2',...]})
+                                I use it for displaying same pressure levels for different climate models
+                                default: None
     option['markerdisplayed'] : markers to use for individual experiments
     option['markerlabel']     : name of the experiment to use for marker
     option['markerlabelcolor']: marker label color (Default: 'k')
@@ -185,10 +190,12 @@ def get_taylor_diagram_options(*args,**kwargs):
 
     option['labelrms'] = 'RMSD'
     option['labelweight'] = 'bold' # weight of the x/y labels ('light', 'normal', 'bold', ...)
+    option['legendch'] = True # Caroline Haslebacher, 2020-08-11
     option['locationcolorbar'] = 'NorthOutside'
 
     option['markercolor'] = None
     option['markercolors'] = None  # if None, considers 'markercolor' only
+    option['markerdictch'] = None # Caroline Haslebacher created this
     option['markerdisplayed'] = 'marker'
     option['markerlabel'] = ''
     option['markerlabelcolor'] = 'k'
@@ -282,6 +289,12 @@ def get_taylor_diagram_options(*args,**kwargs):
                 elif isinstance(option[optname], bool):
                     raise ValueError('cmapzdata cannot be a boolean!')
                 option['cmapzdata'] = optvalue
+
+            elif optname == 'legendch': # CH introduced this on 2020-08-11s
+                option['legendch'] = optvalue
+
+            elif optname == 'markerdictch': # CH introduced this on 2020-05-27
+                option['markerdictch'] = optvalue
 
             elif optname == 'markerlabel':
                 if type(optvalue) is list:
