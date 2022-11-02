@@ -2,12 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import skill_metrics as sm
 
-# I define consistent 'fake-data'
+# Define consistent data
 # also note that the first entry should not show up in the marD because it is the reference
-sdev =  [1., 0.79489189, 0.72909418, 0.67983078, 0.66597742, 0.81855761, 0.234, 0.564, 0.675]
-crmsd = [0., 0.35768422, 0.4479255,  0.54590334, 0.56531812, 0.49595067, 0.7731455, 0.595637, 0.4708768]
-ccoef = [1., 0.94598721, 0.91273604, 0.85621265, 0.84382842, 0.86986516, 0.9765, 0.854, 0.914]
-
 
 sdev=  [1., 0.58612097, 1.00984653, 0.60574307, 1.06347975, 0.89496514,
  1.0121957, 0.95821264, 1.06343127, 0.99495893, 0.99544413, 0.99079383,
@@ -25,14 +21,15 @@ label = ['Non-Dimensional Observation',
          'EXP_MES_WAV_DJC_NTM_TDISSx2shallowM2amp', 'EXP_MES_WAV_DJC_NTM_TDISSx2shallowM2pha',
          'FESdeepM2amp', 'FESdeepM2pha', 'FESshallowM2amp', 'FESshallowM2pha']
 
-# put the fake-data into arrays
+# put the data into arrays
 sdev = np.array(sdev)
 crmsd = np.array(crmsd)
 ccoef = np.array(ccoef)
 
-# define the marker-dict 'marD'
-# 'w' and 'k' define the facecolors which I used to distinguish different categories belonging to the same object
-# here, we do not pass '*' as a marker at all
+# define the marker-dict 'marD' for the data points:
+# markershape is the experiment
+# 'w' and 'k' define the edgecolors (here deep or shallow)
+# the facecolors are for variable
 marD = {'p': {'k': ['darkred', 'darkgoldenrod'],
               'w': ['darkred', 'darkgoldenrod']},
         'd': {'k': ['darkred', 'darkgoldenrod'],
@@ -41,7 +38,7 @@ marD = {'p': {'k': ['darkred', 'darkgoldenrod'],
               'w': ['darkred', 'darkgoldenrod']}}
 
 
-# here, we have three different facecolor categories
+# define marker-dict for legend: label: [marker, edgecolor, facecolor]
 #taylor_label = ['hist', 'present', 'future']
 taylor_label = dict({'> 200m':['^', 'k', 'cadetblue'],
                      '< 200m':['^', 'w', 'cadetblue'],
@@ -55,7 +52,8 @@ taylor_label = dict({'> 200m':['^', 'k', 'cadetblue'],
 plt.figure(num=1, figsize=(7, 6))
 
 sm.taylor_diagram(sdev,crmsd,ccoef, checkStats='on', styleOBS = '-', markerLabel = taylor_label,
-                    colOBS = 'r', markerobs = 'o', markerLegend = 'off',stylerms ='-',colRMS='grey',
+                    colOBS = 'darkblue', markerobs = 'o', markerLegend = 'off',stylerms ='-',colRMS='grey',
                     titleOBS = 'Observation', titleRMS = 'off', titleRMSDangle=20, colCOR='dimgrey',
                     MarkerDictCH=marD, alpha=0.2, markerSize= 9)
-plt.show()
+#plt.show()
+plt.savefig('M2_taylor_diagram.png')
